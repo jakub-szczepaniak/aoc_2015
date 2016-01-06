@@ -1,10 +1,10 @@
 class Present
-  def initialize(dimensions)
-    @length, @width, @height = dimensions.split('x').map(&:to_i)
+  def initialize(input)
+    @length, @width, @height = extract_dimensions(input)
   end
 
   def paper
-    (2 * @length * @width) + (2 * @width * @height) + (2 * @length * @height) + slack
+    2 * (top + front + side) + slack
   end
 
   def ribbon
@@ -13,19 +13,35 @@ class Present
 
   private
 
+  def extract_dimensions(input)
+    input.split('x').map(&:to_i)
+  end
+
+  def front
+    @width * @height
+  end
+
+  def side
+    @height * @length
+  end
+
+  def top
+    @length * @width
+  end
+
   def slack
-    [@length * @width, @width * @height, @height * @length].min
+    [top, front, side].min
   end
 
   def bow
     @length * @width * @height
   end
-  
+
   def wrap
     [perimeter(@length, @width), perimeter(@length, @height), perimeter(@height, @width)].min
   end
 
   def perimeter(a, b)
-    (2 * a) + (2 * b)
+    2 * (a + b)
   end
 end
