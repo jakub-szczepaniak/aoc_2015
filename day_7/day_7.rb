@@ -12,6 +12,14 @@ class Circuit
 
   def resolve(wire)
     throw InvalidSymbolException unless @symbols.key?(wire)
-    @symbols[wire].to_i
+    if numeric(wire)
+      return @symbols[wire].to_i
+    else
+      resolve(@symbols[wire])
+    end
+  end
+
+  def numeric(wire)
+    @symbols[wire] =~ /\d+/
   end
 end
