@@ -1,14 +1,17 @@
+class InvalidSymbolException < Exception
+end
 class Circuit
   def initialize
-    @wires = {}
+    @symbols = {}
   end
 
-  def add_wire(schema)
-    matches = schema.match(/(\d*) -> ([a-z]+)/)
-    @wires[matches[2].to_sym] = matches[1].to_i
+  def add_group(schema)
+    matches = schema.match(/(.*) -> ([a-z]+)/)
+    @symbols[matches[2]] = matches[1]
   end
 
   def resolve(wire)
-    @wires[wire.to_sym]
+    throw InvalidSymbolException unless @symbols.key?(wire)
+    @symbols[wire].to_i
   end
 end
