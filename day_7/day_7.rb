@@ -19,6 +19,18 @@ class Circuit
       argument = resolve(@symbols[wire].split[0])
       value = @symbols[wire].split[2].to_i
       return (argument >> value) & 65_535
+    elsif lshift(wire)
+      argument = resolve(@symbols[wire].split[0])
+      value = @symbols[wire].split[2].to_i
+      return (argument << value) & 65_535
+    elsif or_gate(wire)
+      operand1 = resolve(@symbols[wire].split[0])
+      operand2 = resolve(@symbols[wire].split[2])
+      return (operand1 | operand2) & 65_535
+    elsif and_gate(wire)
+      operand1 = resolve(@symbols[wire].split[0])
+      operand2 = resolve(@symbols[wire].split[2])
+      return (operand1 & operand2) & 65_535
     elsif numeric(wire)
       return @symbols[wire].to_i
     else
@@ -36,5 +48,17 @@ class Circuit
 
   def rshift(wire)
     @symbols[wire] =~ /RSHIFT/
+  end
+
+  def lshift(wire)
+    @symbols[wire] =~ /LSHIFT/
+  end
+
+  def or_gate(wire)
+    @symbols[wire] =~ /OR/
+  end
+
+  def and_gate(wire)
+    @symbols[wire] =~ /AND/
   end
 end

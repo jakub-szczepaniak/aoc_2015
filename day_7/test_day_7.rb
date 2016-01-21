@@ -46,4 +46,29 @@ class TestCircuit < MiniTest::Test
     test_circuit.add_group('y RSHIFT 2 -> g')
     assert_equal(114, test_circuit.resolve('g'))
   end
+
+  def test_circuit_supports_LSHIFT_operation
+    test_circuit = Circuit.new
+    test_circuit.add_group('123 -> x')
+    test_circuit.add_group('x LSHIFT 2 -> f')
+    assert_equal(492, test_circuit.resolve('f'))
+  end
+
+  def test_circuit_supports_OR_operation
+    test_circuit = Circuit.new
+    test_circuit.add_group('123 -> x')
+    test_circuit.add_group('456 -> y')
+    test_circuit.add_group('x OR y -> e')
+
+    assert_equal(507, test_circuit.resolve('e'))
+  end
+
+  def test_circuit_supports_AND_operation
+    test_circuit = Circuit.new
+    test_circuit.add_group('123 -> x')
+    test_circuit.add_group('456 -> y')
+    test_circuit.add_group('x AND y -> d')
+
+    assert_equal(72, test_circuit.resolve('d'))    
+  end
 end
