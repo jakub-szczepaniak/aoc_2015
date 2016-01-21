@@ -12,10 +12,15 @@ class Circuit
 
   def resolve(wire)
     throw InvalidSymbolException unless @symbols.key?(wire)
-    if numeric(wire)
-      return @symbols[wire].to_i
-    elsif not_operation(wire)
+  
+    if not_operation(wire)
       return (~resolve(@symbols[wire].split[1])) & 65_535
+    elsif rshift(wire)
+      argument = resolve(@symbols[wire].split[0])
+      value = @symbols[wire].split[2].to_i
+      return (argument >> value) & 65_535
+    elsif numeric(wire)
+      return @symbols[wire].to_i
     else
       resolve(@symbols[wire])
     end
@@ -27,5 +32,9 @@ class Circuit
 
   def not_operation(wire)
     @symbols[wire] =~ /NOT/
+  end
+
+  def rshift(wire)
+    @symbols[wire] =~ /RSHIFT/
   end
 end

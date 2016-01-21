@@ -39,4 +39,11 @@ class TestCircuit < MiniTest::Test
     test_circuit.add_group('NOT b -> dg')
     assert_equal(65_412, test_circuit.resolve('dg'))
   end
+
+  def test_circuit_supports_RSHIFT_operation
+    test_circuit = Circuit.new
+    test_circuit.add_group('456 -> y')
+    test_circuit.add_group('y RSHIFT 2 -> g')
+    assert_equal(114, test_circuit.resolve('g'))
+  end
 end
