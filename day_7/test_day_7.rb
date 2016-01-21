@@ -32,4 +32,11 @@ class TestCircuit < MiniTest::Test
 
     assert_equal(14_146, test_circuit.resolve('a'))
   end
+
+  def test_circuit_support_NOT_operation
+    test_circuit = Circuit.new
+    test_circuit.add_group('123 -> b')
+    test_circuit.add_group('NOT b -> dg')
+    assert_equal(65_412, test_circuit.resolve('dg'))
+  end
 end

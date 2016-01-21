@@ -14,6 +14,8 @@ class Circuit
     throw InvalidSymbolException unless @symbols.key?(wire)
     if numeric(wire)
       return @symbols[wire].to_i
+    elsif not_operation(wire)
+      return (~resolve(@symbols[wire].split[1])) & 65_535
     else
       resolve(@symbols[wire])
     end
@@ -21,5 +23,9 @@ class Circuit
 
   def numeric(wire)
     @symbols[wire] =~ /\d+/
+  end
+
+  def not_operation(wire)
+    @symbols[wire] =~ /NOT/
   end
 end
