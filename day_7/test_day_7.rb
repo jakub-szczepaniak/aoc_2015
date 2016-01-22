@@ -71,4 +71,15 @@ class TestCircuit < MiniTest::Test
 
     assert_equal(72, test_circuit.resolve('d'))    
   end
+
+  def test_my_input
+    skip('has to be debugged')
+    input = File.readlines('day_7_data.txt')
+    test_circuit = Circuit.new
+    input.each do |wire|
+      test_circuit.add_group(wire)
+    end
+    p test_circuit
+    assert_eqaul(0, test_circuit.resolve('a'))
+  end
 end
