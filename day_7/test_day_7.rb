@@ -55,10 +55,19 @@ class TestCircuit < MiniTest::Test
   end
 
   def test_circuit_supports_OR_operation
+    skip('pending')
     test_circuit = Circuit.new
     test_circuit.add_group('123 -> x')
     test_circuit.add_group('456 -> y')
     test_circuit.add_group('x OR y -> e')
+
+    assert_equal(507, test_circuit.resolve('e'))
+  end
+
+  def test_circuit_support_or_with_literal_number
+    test_circuit = Circuit.new
+    test_circuit.add_group('123 -> x')
+    test_circuit.add_group('x OR 456 -> e')
 
     assert_equal(507, test_circuit.resolve('e'))
   end
@@ -72,14 +81,21 @@ class TestCircuit < MiniTest::Test
     assert_equal(72, test_circuit.resolve('d'))    
   end
 
+  def test_circuit_supports_or_with_literal_number
+    test_circuit = Circuit.new
+    test_circuit.add_group('123 -> y')
+    test_circuit.add_group('456 AND y -> d')
+
+    assert_equal(72, test_circuit.resolve('d'))
+  end
+
   def test_my_input
-    skip('has to be debugged')
+    skip('pending')
     input = File.readlines('day_7_data.txt')
     test_circuit = Circuit.new
     input.each do |wire|
       test_circuit.add_group(wire)
     end
-    p test_circuit
-    assert_eqaul(0, test_circuit.resolve('a'))
+    assert_equal(0, test_circuit.resolve('a'))
   end
 end
