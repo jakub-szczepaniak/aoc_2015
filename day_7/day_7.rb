@@ -2,8 +2,10 @@ class InvalidSymbolException < Exception
 end
 
 class Circuit
+  attr_reader :outputs
   def initialize
     @symbols = {}
+    @outputs = {}
   end
 
   def add_group(schema)
@@ -15,39 +17,56 @@ class Circuit
 
   def resolve(wire)
     throw InvalidSymbolException unless @symbols.key?(wire)
-    p wire
-    if not_operation(wire)
-      operand1 = resolve(@symbols[wire].split[1]) 
-      return (~operand1) & 65_535
+    return @outputs[wire] if @outputs.key?(wire)
+    if not_operation(@symbols[wire])
+      operand1 = resolve(@symbols[wire].split[1])
+      return @outputs[wire] = (~operand1) & 65_535
     elsif rshift(wire)
       operand1 = resolve(@symbols[wire].split[0])
       operand2 = @symbols[wire].split[2].to_i
-      return (operand1 >> operand2) & 65_535
+      return @outputs[wire] = (operand1 >> operand2) & 65_535
     elsif lshift(wire)
       operand1 = resolve(@symbols[wire].split[0])
       operand2 = @symbols[wire].split[2].to_i
-      return (operand1 << operand2) & 65_535
-    elsif or_gate(wire)
-      operand1 = resolve(@symbols[wire].split[0])
-      operand2 = resolve(@symbols[wire].split[2])
-      return (operand1 | operand2) & 65_535
-    elsif and_gate(wire)
-      operand1 = resolve(@symbols[wire].split[0])
-      operand2 = resolve(@symbols[wire].split[2])
-      return (operand1 & operand2) & 65_535
-    elsif numeric(wire)
-      return @symbols[wire].to_i
+      return @outputs[wire] = (operand1 << operand2) & 65_535
+    elsif or_gate(@symbols[wire])
+      if numeric(@symbols[wire].split[0])
+        operand1 = @symbols[wire].split[0].to_i
+      else
+        operand1 = resolve(@symbols[wire].split[0])
+      end
+      if numeric(@symbols[wire].split[2])
+        operand2 = @symbols[wire].split[2].to_i
+      else
+        operand2 = resolve(@symbols[wire].split[2])
+      end
+      @outputs[wire] = (operand1 | operand2) & 65_535
+      return @outputs[wire]
+    elsif and_gate(@symbols[wire])
+      if numeric(@symbols[wire].split[0])
+        operand1 = @symbols[wire].split[0].to_i
+      else
+        operand1 = resolve(@symbols[wire].split[0])
+      end
+      if numeric(@symbols[wire].split[2])
+        operand2 = @symbols[wire].split[2].to_i
+      else
+        operand2 = resolve(@symbols[wire].split[2])
+      end
+      return @outputs[wire] = (operand1 & operand2) & 65_535
+    elsif numeric(@symbols[wire])
+      return @outputs[wire] = @symbols[wire].to_i
     else
-      resolve(@symbols[wire])
+      return @outputs[wire] = resolve(@symbols[wire])
     end
   end
 
   def numeric(wire)
-    @symbols[wire] =~ /\d+/
+    wire =~ /\d+/
   end
 
   def not_operation(wire)
-    @symbols[wire] =~ /NOT/
+    wire =~ /NOT/
   end
 
   def rshift(wire)
@@ -59,10 +78,10 @@ class Circuit
   end
 
   def or_gate(wire)
-    @symbols[wire] =~ /OR/
+    wire =~ /OR/
   end
 
   def and_gate(wire)
-    @symbols[wire] =~ /AND/
+    wire =~ /AND/
   end
 end

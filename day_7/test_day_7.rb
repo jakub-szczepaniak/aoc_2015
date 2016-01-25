@@ -55,7 +55,6 @@ class TestCircuit < MiniTest::Test
   end
 
   def test_circuit_supports_OR_operation
-    skip('pending')
     test_circuit = Circuit.new
     test_circuit.add_group('123 -> x')
     test_circuit.add_group('456 -> y')
@@ -90,12 +89,11 @@ class TestCircuit < MiniTest::Test
   end
 
   def test_my_input
-    skip('pending')
     input = File.readlines('day_7_data.txt')
     test_circuit = Circuit.new
     input.each do |wire|
       test_circuit.add_group(wire)
     end
-    assert_equal(0, test_circuit.resolve('a'))
+    assert_equal(956, test_circuit.resolve('a'))
   end
 end
