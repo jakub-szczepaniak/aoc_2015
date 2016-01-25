@@ -1,5 +1,6 @@
 class InvalidSymbolException < Exception
 end
+
 class Circuit
   def initialize
     @symbols = {}
@@ -7,22 +8,25 @@ class Circuit
 
   def add_group(schema)
     matches = schema.match(/(.*) -> ([a-z]+)/)
-    @symbols[matches[2]] = matches[1]
+    label = matches[2]
+    instruction = matches[1]
+    @symbols[label] = instruction
   end
 
   def resolve(wire)
     throw InvalidSymbolException unless @symbols.key?(wire)
-  
+    p wire
     if not_operation(wire)
-      return (~resolve(@symbols[wire].split[1])) & 65_535
+      operand1 = resolve(@symbols[wire].split[1]) 
+      return (~operand1) & 65_535
     elsif rshift(wire)
-      argument = resolve(@symbols[wire].split[0])
-      value = @symbols[wire].split[2].to_i
-      return (argument >> value) & 65_535
+      operand1 = resolve(@symbols[wire].split[0])
+      operand2 = @symbols[wire].split[2].to_i
+      return (operand1 >> operand2) & 65_535
     elsif lshift(wire)
-      argument = resolve(@symbols[wire].split[0])
-      value = @symbols[wire].split[2].to_i
-      return (argument << value) & 65_535
+      operand1 = resolve(@symbols[wire].split[0])
+      operand2 = @symbols[wire].split[2].to_i
+      return (operand1 << operand2) & 65_535
     elsif or_gate(wire)
       operand1 = resolve(@symbols[wire].split[0])
       operand2 = resolve(@symbols[wire].split[2])
