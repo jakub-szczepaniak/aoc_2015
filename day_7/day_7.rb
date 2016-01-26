@@ -4,7 +4,7 @@ end
 class Circuit
   attr_reader :outputs
   def initialize
-    @symbols = {}
+    @gates = {}
     @outputs = {}
   end
 
@@ -12,76 +12,75 @@ class Circuit
     matches = schema.match(/(.*) -> ([a-z]+)/)
     label = matches[2]
     instruction = matches[1]
-    @symbols[label] = instruction
+    @gates[label] = instruction
+  end
+  def evaluate_not(operand)
+    (~operand) & 65_535
+  end
+
+  def evaluate_rshift(operand1, operand2)
+    (operand1 >> operand2) & 65_535
+  end
+
+  def evaluate_lshift(operand1, operand2)
+    (operand1 << operand2) & 65_535
+  end
+
+  def evaluate_or(operand1, operand2)
+    (operand1 | operand2) & 65_535
+  end
+
+  def evaluate_and(operand1, operand2)
+    (operand1 & operand2) & 65_535
   end
 
   def resolve(wire)
-    throw InvalidSymbolException unless @symbols.key?(wire)
+    throw InvalidSymbolException unless @gates.key?(wire)
     return @outputs[wire] if @outputs.key?(wire)
-    if not_operation(@symbols[wire])
-      operand1 = resolve(@symbols[wire].split[1])
-      return @outputs[wire] = (~operand1) & 65_535
-    elsif rshift(wire)
-      operand1 = resolve(@symbols[wire].split[0])
-      operand2 = @symbols[wire].split[2].to_i
-      return @outputs[wire] = (operand1 >> operand2) & 65_535
-    elsif lshift(wire)
-      operand1 = resolve(@symbols[wire].split[0])
-      operand2 = @symbols[wire].split[2].to_i
-      return @outputs[wire] = (operand1 << operand2) & 65_535
-    elsif or_gate(@symbols[wire])
-      if numeric(@symbols[wire].split[0])
-        operand1 = @symbols[wire].split[0].to_i
+    case @gates[wire]
+    when /NOT/
+      operand = resolve(@gates[wire].split[1])
+      return @outputs[wire] = evaluate_not(operand)
+    when /RSHIFT/
+      operand1 = resolve(@gates[wire].split[0])
+      operand2 = @gates[wire].split[2].to_i
+      return @outputs[wire] = evaluate_rshift(operand1, operand2)
+    when /LSHIFT/
+      operand1 = resolve(@gates[wire].split[0])
+      operand2 = @gates[wire].split[2].to_i
+      return @outputs[wire] = evaluate_lshift(operand1, operand2)
+    when /OR/
+      if numeric(@gates[wire].split[0])
+        operand1 = @gates[wire].split[0].to_i
       else
-        operand1 = resolve(@symbols[wire].split[0])
+        operand1 = resolve(@gates[wire].split[0])
       end
-      if numeric(@symbols[wire].split[2])
-        operand2 = @symbols[wire].split[2].to_i
+      if numeric(@gates[wire].split[2])
+        operand2 = @gates[wire].split[2].to_i
       else
-        operand2 = resolve(@symbols[wire].split[2])
+        operand2 = resolve(@gates[wire].split[2])
       end
-      @outputs[wire] = (operand1 | operand2) & 65_535
+      @outputs[wire] = evaluate_or(operand1, operand2)
       return @outputs[wire]
-    elsif and_gate(@symbols[wire])
-      if numeric(@symbols[wire].split[0])
-        operand1 = @symbols[wire].split[0].to_i
+    when /AND/
+      if numeric(@gates[wire].split[0])
+        operand1 = @gates[wire].split[0].to_i
       else
-        operand1 = resolve(@symbols[wire].split[0])
+        operand1 = resolve(@gates[wire].split[0])
       end
-      if numeric(@symbols[wire].split[2])
-        operand2 = @symbols[wire].split[2].to_i
+      if numeric(@gates[wire].split[2])
+        operand2 = @gates[wire].split[2].to_i
       else
-        operand2 = resolve(@symbols[wire].split[2])
+        operand2 = resolve(@gates[wire].split[2])
       end
-      return @outputs[wire] = (operand1 & operand2) & 65_535
-    elsif numeric(@symbols[wire])
-      return @outputs[wire] = @symbols[wire].to_i
-    else
-      return @outputs[wire] = resolve(@symbols[wire])
+      return @outputs[wire] = evaluate_and(operand1, operand2)
+    when /\d+/
+      return @outputs[wire] = @gates[wire].to_i
     end
+    @outputs[wire] = resolve(@gates[wire])
   end
 
   def numeric(wire)
     wire =~ /\d+/
-  end
-
-  def not_operation(wire)
-    wire =~ /NOT/
-  end
-
-  def rshift(wire)
-    @symbols[wire] =~ /RSHIFT/
-  end
-
-  def lshift(wire)
-    @symbols[wire] =~ /LSHIFT/
-  end
-
-  def or_gate(wire)
-    wire =~ /OR/
-  end
-
-  def and_gate(wire)
-    wire =~ /AND/
   end
 end
