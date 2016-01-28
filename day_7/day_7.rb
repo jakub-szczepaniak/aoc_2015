@@ -12,22 +12,87 @@ class Circuit
     matches = schema.match(/(.*) -> ([a-z]+)/)
     label = matches[2]
     instruction = matches[1]
-    @gates[label] = instruction
+    @gates[label] = parse(instruction)
   end
-  def evaluate_not(operand)
-    (~operand) & 65_535
+  def parse(instruction)
+    case instruction
+    when /NOT/
+      return NotInstruction.new(instruction, @gates)
+    when /RSHIFT/
+      return RshiftInstruction.new(instruction, @gates)
+    when /LSHIFT/
+      return LShiftInstruction.new(instruction, @gates)
+    when /OR/
+      return ORInstruction.new(instruction, @gates)
+    when /[a-z]+/
+      return PassThroughValue.new(instruction, @gates)
+    when /\d+/
+      return LiteralValue.new(instruction)
+    end
+    instruction
   end
-
-  def evaluate_rshift(operand1, operand2)
-    (operand1 >> operand2) & 65_535
+  class ORInstruction
+    def initialize(instruction, grid)
+      @symbol, _, @operand = instruction.split
+      @grid = grid
+    end
+    def evaluate
+      if @symbol =~ /\d+/
+        operand1 = @symbol.to_i
+      else
+        operand1 = @grid[@symbol].evaluate
+      end
+      if @operand =~ /\d+/
+        operand2 = @operand.to_i
+      else
+        operand2 = @grid[@operand].evaluate
+      end
+      (operand1 | operand2) & 65_535
+    end
   end
-
-  def evaluate_lshift(operand1, operand2)
-    (operand1 << operand2) & 65_535
+  class LShiftInstruction
+    def initialize(instruction, grid)
+      @symbol, _, @operand = instruction.split
+      @grid = grid
+    end
+    def evaluate
+      (@grid[@symbol].evaluate << @operand.to_i) & 65_535
+    end
   end
-
-  def evaluate_or(operand1, operand2)
-    (operand1 | operand2) & 65_535
+  class RshiftInstruction
+    def initialize(instruction, grid)
+      @symbol, _, @operand = instruction.split
+      @grid = grid
+    end
+    def evaluate
+      (@grid[@symbol].evaluate >> @operand.to_i) & 65_535
+    end
+  end
+  class LiteralValue
+    def initialize(instruction)
+      @value = instruction.to_i
+    end
+    def evaluate
+      @value
+    end
+  end
+  class PassThroughValue
+    def initialize(instruction, grid)
+      @symbol = instruction
+      @grid = grid
+    end
+    def evaluate
+      @grid[@symbol].evaluate
+    end
+  end
+  class NotInstruction
+    def initialize(instruction, grid)
+      @symbol = instruction.split[1]
+      @grid = grid
+    end
+    def evaluate
+      ~(@grid[@symbol].evaluate) & 65_535
+    end
   end
 
   def evaluate_and(operand1, operand2)
@@ -38,30 +103,6 @@ class Circuit
     throw InvalidSymbolException unless @gates.key?(wire)
     return @outputs[wire] if @outputs.key?(wire)
     case @gates[wire]
-    when /NOT/
-      operand = resolve(@gates[wire].split[1])
-      return @outputs[wire] = evaluate_not(operand)
-    when /RSHIFT/
-      operand1 = resolve(@gates[wire].split[0])
-      operand2 = @gates[wire].split[2].to_i
-      return @outputs[wire] = evaluate_rshift(operand1, operand2)
-    when /LSHIFT/
-      operand1 = resolve(@gates[wire].split[0])
-      operand2 = @gates[wire].split[2].to_i
-      return @outputs[wire] = evaluate_lshift(operand1, operand2)
-    when /OR/
-      if numeric(@gates[wire].split[0])
-        operand1 = @gates[wire].split[0].to_i
-      else
-        operand1 = resolve(@gates[wire].split[0])
-      end
-      if numeric(@gates[wire].split[2])
-        operand2 = @gates[wire].split[2].to_i
-      else
-        operand2 = resolve(@gates[wire].split[2])
-      end
-      @outputs[wire] = evaluate_or(operand1, operand2)
-      return @outputs[wire]
     when /AND/
       if numeric(@gates[wire].split[0])
         operand1 = @gates[wire].split[0].to_i
@@ -74,10 +115,8 @@ class Circuit
         operand2 = resolve(@gates[wire].split[2])
       end
       return @outputs[wire] = evaluate_and(operand1, operand2)
-    when /\d+/
-      return @outputs[wire] = @gates[wire].to_i
     end
-    @outputs[wire] = resolve(@gates[wire])
+    @outputs[wire] = @gates[wire].evaluate
   end
 
   def numeric(wire)
