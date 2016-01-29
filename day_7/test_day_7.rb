@@ -89,6 +89,7 @@ class TestCircuit < MiniTest::Test
   end
 
   def test_my_input
+    skip('for now')
     input = File.readlines('day_7_data.txt')
     test_circuit = Circuit.new
     input.each do |wire|

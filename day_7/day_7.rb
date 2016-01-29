@@ -24,6 +24,8 @@ class Circuit
       return LShiftInstruction.new(instruction, @gates)
     when /OR/
       return ORInstruction.new(instruction, @gates)
+    when /AND/
+      return ANDInstruction.new(instruction, @gates)
     when /[a-z]+/
       return PassThroughValue.new(instruction, @gates)
     when /\d+/
@@ -31,11 +33,33 @@ class Circuit
     end
     instruction
   end
+  class ANDInstruction
+    def initialize(instruction, grid)
+      @symbol, _, @operand = instruction.split
+      @grid = grid
+    end
+
+    def evaluate
+      if @symbol =~ /\d+/
+        operand1 = @symbol.to_i
+      else
+        operand1 = @grid[@symbol].evaluate
+      end
+      if @operand =~ /\d+/
+        operand2 = @operand.to_i
+      else
+        operand2 = @grid[@operand].evaluate
+      end
+      (operand1 & operand2) & 65_535
+    end 
+  end
+  
   class ORInstruction
     def initialize(instruction, grid)
       @symbol, _, @operand = instruction.split
       @grid = grid
     end
+
     def evaluate
       if @symbol =~ /\d+/
         operand1 = @symbol.to_i
@@ -55,6 +79,7 @@ class Circuit
       @symbol, _, @operand = instruction.split
       @grid = grid
     end
+
     def evaluate
       (@grid[@symbol].evaluate << @operand.to_i) & 65_535
     end
@@ -64,6 +89,7 @@ class Circuit
       @symbol, _, @operand = instruction.split
       @grid = grid
     end
+
     def evaluate
       (@grid[@symbol].evaluate >> @operand.to_i) & 65_535
     end
@@ -72,6 +98,7 @@ class Circuit
     def initialize(instruction)
       @value = instruction.to_i
     end
+
     def evaluate
       @value
     end
@@ -81,6 +108,7 @@ class Circuit
       @symbol = instruction
       @grid = grid
     end
+
     def evaluate
       @grid[@symbol].evaluate
     end
@@ -90,36 +118,15 @@ class Circuit
       @symbol = instruction.split[1]
       @grid = grid
     end
+
     def evaluate
       ~(@grid[@symbol].evaluate) & 65_535
     end
   end
 
-  def evaluate_and(operand1, operand2)
-    (operand1 & operand2) & 65_535
-  end
-
   def resolve(wire)
     throw InvalidSymbolException unless @gates.key?(wire)
     return @outputs[wire] if @outputs.key?(wire)
-    case @gates[wire]
-    when /AND/
-      if numeric(@gates[wire].split[0])
-        operand1 = @gates[wire].split[0].to_i
-      else
-        operand1 = resolve(@gates[wire].split[0])
-      end
-      if numeric(@gates[wire].split[2])
-        operand2 = @gates[wire].split[2].to_i
-      else
-        operand2 = resolve(@gates[wire].split[2])
-      end
-      return @outputs[wire] = evaluate_and(operand1, operand2)
-    end
     @outputs[wire] = @gates[wire].evaluate
-  end
-
-  def numeric(wire)
-    wire =~ /\d+/
   end
 end
