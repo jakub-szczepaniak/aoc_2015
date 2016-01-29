@@ -1,11 +1,110 @@
 class InvalidSymbolException < Exception
 end
+class Gate
+  def initialize(instruction = nil, grid = nil)
+    @output = nil
+    @grid = grid
+  end
+
+  def reset
+    @output = nil
+  end
+end
+class LShiftGate < Gate
+  def initialize(instruction, grid)
+    super(instruction, grid)
+    @symbol, _, @operand = instruction.split
+  end
+
+  def evaluate
+    @output ||= (@grid[@symbol].evaluate << @operand.to_i) & 65_535
+  end
+end
+class RshiftGate < Gate
+  def initialize(instruction, grid)
+    super(instruction, grid)
+    @symbol, _, @operand = instruction.split
+  end
+
+  def evaluate
+    @output ||= (@grid[@symbol].evaluate >> @operand.to_i) & 65_535
+  end
+end
+class LiteralValue < Gate
+  def initialize(instruction, gate = nil)
+    super(instruction, gate)
+    @value = instruction.to_i
+  end
+
+  def evaluate
+    @output ||= @value
+  end
+end
+class PassThroughValue < Gate
+  def initialize(instruction, grid)
+    super(instruction, grid)
+    @symbol = instruction
+  end
+
+  def evaluate
+    @output ||= @grid[@symbol].evaluate
+  end
+end
+class NotGate < Gate
+  def initialize(instruction, grid)
+    super(instruction, grid)
+    @symbol = instruction.split[1]
+  end
+
+  def evaluate
+    @output ||= ~(@grid[@symbol].evaluate) & 65_535
+  end
+end
+class ORGate <Gate
+  def initialize(instruction, grid)
+    super(instruction, grid)
+    @symbol, _, @operand = instruction.split
+  end
+
+  def evaluate
+    if @symbol =~ /\d+/
+      operand1 = @symbol.to_i
+    else
+      operand1 = @grid[@symbol].evaluate
+    end
+    if @operand =~ /\d+/
+      operand2 = @operand.to_i
+    else
+      operand2 = @grid[@operand].evaluate
+    end
+    @output ||= (operand1 | operand2) & 65_535
+  end
+end
+class ANDGate < Gate
+  def initialize(instruction, grid)
+    super(instruction, grid)
+    @symbol, _, @operand = instruction.split
+  end
+
+  def evaluate
+    if @symbol =~ /\d+/
+      operand1 = @symbol.to_i
+    else
+      operand1 = @grid[@symbol].evaluate
+    end
+    if @operand =~ /\d+/
+      operand2 = @operand.to_i
+    else
+      operand2 = @grid[@operand].evaluate
+    end
+    @output ||= (operand1 & operand2) & 65_535
+  end 
+end
 
 class Circuit
   attr_reader :outputs
   def initialize
     @gates = {}
-    @outputs = {}
   end
 
   def add_group(schema)
@@ -14,119 +113,32 @@ class Circuit
     instruction = matches[1]
     @gates[label] = parse(instruction)
   end
+
   def parse(instruction)
     case instruction
     when /NOT/
-      return NotInstruction.new(instruction, @gates)
+      return NotGate.new(instruction, @gates)
     when /RSHIFT/
-      return RshiftInstruction.new(instruction, @gates)
+      return RshiftGate.new(instruction, @gates)
     when /LSHIFT/
-      return LShiftInstruction.new(instruction, @gates)
+      return LShiftGate.new(instruction, @gates)
     when /OR/
-      return ORInstruction.new(instruction, @gates)
+      return ORGate.new(instruction, @gates)
     when /AND/
-      return ANDInstruction.new(instruction, @gates)
+      return ANDGate.new(instruction, @gates)
     when /[a-z]+/
       return PassThroughValue.new(instruction, @gates)
     when /\d+/
       return LiteralValue.new(instruction)
     end
-    instruction
-  end
-  class ANDInstruction
-    def initialize(instruction, grid)
-      @symbol, _, @operand = instruction.split
-      @grid = grid
-    end
-
-    def evaluate
-      if @symbol =~ /\d+/
-        operand1 = @symbol.to_i
-      else
-        operand1 = @grid[@symbol].evaluate
-      end
-      if @operand =~ /\d+/
-        operand2 = @operand.to_i
-      else
-        operand2 = @grid[@operand].evaluate
-      end
-      (operand1 & operand2) & 65_535
-    end 
-  end
-  
-  class ORInstruction
-    def initialize(instruction, grid)
-      @symbol, _, @operand = instruction.split
-      @grid = grid
-    end
-
-    def evaluate
-      if @symbol =~ /\d+/
-        operand1 = @symbol.to_i
-      else
-        operand1 = @grid[@symbol].evaluate
-      end
-      if @operand =~ /\d+/
-        operand2 = @operand.to_i
-      else
-        operand2 = @grid[@operand].evaluate
-      end
-      (operand1 | operand2) & 65_535
-    end
-  end
-  class LShiftInstruction
-    def initialize(instruction, grid)
-      @symbol, _, @operand = instruction.split
-      @grid = grid
-    end
-
-    def evaluate
-      (@grid[@symbol].evaluate << @operand.to_i) & 65_535
-    end
-  end
-  class RshiftInstruction
-    def initialize(instruction, grid)
-      @symbol, _, @operand = instruction.split
-      @grid = grid
-    end
-
-    def evaluate
-      (@grid[@symbol].evaluate >> @operand.to_i) & 65_535
-    end
-  end
-  class LiteralValue
-    def initialize(instruction)
-      @value = instruction.to_i
-    end
-
-    def evaluate
-      @value
-    end
-  end
-  class PassThroughValue
-    def initialize(instruction, grid)
-      @symbol = instruction
-      @grid = grid
-    end
-
-    def evaluate
-      @grid[@symbol].evaluate
-    end
-  end
-  class NotInstruction
-    def initialize(instruction, grid)
-      @symbol = instruction.split[1]
-      @grid = grid
-    end
-
-    def evaluate
-      ~(@grid[@symbol].evaluate) & 65_535
-    end
   end
 
   def resolve(wire)
     throw InvalidSymbolException unless @gates.key?(wire)
-    return @outputs[wire] if @outputs.key?(wire)
-    @outputs[wire] = @gates[wire].evaluate
+    @gates[wire].evaluate
+  end
+
+  def reset
+    @gates.values.each(&:reset)
   end
 end

@@ -33,28 +33,28 @@ class TestCircuit < MiniTest::Test
     assert_equal(14_146, test_circuit.resolve('a'))
   end
 
-  def test_circuit_support_NOT_operation
+  def test_circuit_support_not_operation
     test_circuit = Circuit.new
     test_circuit.add_group('123 -> b')
     test_circuit.add_group('NOT b -> dg')
     assert_equal(65_412, test_circuit.resolve('dg'))
   end
 
-  def test_circuit_supports_RSHIFT_operation
+  def test_circuit_supports_rshift_operation
     test_circuit = Circuit.new
     test_circuit.add_group('456 -> y')
     test_circuit.add_group('y RSHIFT 2 -> g')
     assert_equal(114, test_circuit.resolve('g'))
   end
 
-  def test_circuit_supports_LSHIFT_operation
+  def test_circuit_supports_lshift_operation
     test_circuit = Circuit.new
     test_circuit.add_group('123 -> x')
     test_circuit.add_group('x LSHIFT 2 -> f')
     assert_equal(492, test_circuit.resolve('f'))
   end
 
-  def test_circuit_supports_OR_operation
+  def test_circuit_supports_or_operation
     test_circuit = Circuit.new
     test_circuit.add_group('123 -> x')
     test_circuit.add_group('456 -> y')
@@ -71,13 +71,13 @@ class TestCircuit < MiniTest::Test
     assert_equal(507, test_circuit.resolve('e'))
   end
 
-  def test_circuit_supports_AND_operation
+  def test_circuit_supports_and_operation
     test_circuit = Circuit.new
     test_circuit.add_group('123 -> x')
     test_circuit.add_group('456 -> y')
     test_circuit.add_group('x AND y -> d')
 
-    assert_equal(72, test_circuit.resolve('d'))    
+    assert_equal(72, test_circuit.resolve('d'))
   end
 
   def test_circuit_supports_or_with_literal_number
@@ -89,12 +89,23 @@ class TestCircuit < MiniTest::Test
   end
 
   def test_my_input
-    skip('for now')
     input = File.readlines('day_7_data.txt')
     test_circuit = Circuit.new
     input.each do |wire|
       test_circuit.add_group(wire)
     end
     assert_equal(956, test_circuit.resolve('a'))
+  end
+
+  def test_my_input_2
+    input = File.readlines('day_7_data.txt')
+    test_circuit = Circuit.new
+    input.each do |wire|
+      test_circuit.add_group(wire)
+    end
+    new_b = test_circuit.resolve('a')
+    test_circuit.reset
+    test_circuit.add_group("#{new_b} -> b")
+    assert_equal(40_149, test_circuit.resolve('a'))
   end
 end
