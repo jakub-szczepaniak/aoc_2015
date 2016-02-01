@@ -10,5 +10,9 @@ class Representation
   def characters
     eval(@source).length
   end
-  
+
+  def encoded
+    @source.inspect.length
+  end
+
 end
