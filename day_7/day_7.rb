@@ -6,6 +6,15 @@ class Gate
     @grid = grid
   end
 
+  def convert_to_int_or_evaluate(argument)
+    if argument =~ /\d+/
+      operand = argument.to_i
+    else
+      operand = @grid[argument].evaluate
+    end
+    operand
+  end
+
   def reset
     @output = nil
   end
@@ -67,16 +76,8 @@ class ORGate <Gate
   end
 
   def evaluate
-    if @symbol =~ /\d+/
-      operand1 = @symbol.to_i
-    else
-      operand1 = @grid[@symbol].evaluate
-    end
-    if @operand =~ /\d+/
-      operand2 = @operand.to_i
-    else
-      operand2 = @grid[@operand].evaluate
-    end
+    operand1 = convert_to_int_or_evaluate(@symbol)
+    operand2 = convert_to_int_or_evaluate(@operand)
     @output ||= (operand1 | operand2) & 65_535
   end
 end
@@ -87,16 +88,8 @@ class ANDGate < Gate
   end
 
   def evaluate
-    if @symbol =~ /\d+/
-      operand1 = @symbol.to_i
-    else
-      operand1 = @grid[@symbol].evaluate
-    end
-    if @operand =~ /\d+/
-      operand2 = @operand.to_i
-    else
-      operand2 = @grid[@operand].evaluate
-    end
+    operand1 = convert_to_int_or_evaluate(@symbol)
+    operand2 = convert_to_int_or_evaluate(@operand)
     @output ||= (operand1 & operand2) & 65_535
   end 
 end
