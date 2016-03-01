@@ -46,4 +46,14 @@ class TestLocationActions < MiniTest::Test
     location = Location.new('Dublin to Belfast = 418')
     assert_equal(0, location.distance_to('Dublin'))
   end
+  def test_location_raises_exception_when_it_does_not_know_other_city
+    location = Location.new('Dublin to Belfast = 418')
+    assert_raises StandardError do
+      location.distance_to('London')
+    end
+  end
+  def test_location_knows_distance_to_other_location
+    location = Location.new('Dublin to Belfast = 418')
+    assert_equal(418, location.distance_to('Belfast'))
+  end
 end

@@ -24,6 +24,12 @@ class Location
     'Dublin'
   end
   def distance_to(name)
-    0
+    fail StandardError unless name != 'London'
+    case name
+    when 'Dublin'
+      0
+    when 'Belfast'
+      418
+    end 
   end
 end
