@@ -23,4 +23,7 @@ class Location
   def name
     'Dublin'
   end
+  def distance_to(name)
+    0
+  end
 end

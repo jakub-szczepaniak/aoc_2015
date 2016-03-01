@@ -42,4 +42,8 @@ class TestLocationActions < MiniTest::Test
     location = Location.new('Dublin to Belfast = 418')
     assert_equal('Dublin', location.name)
   end
+  def test_location_knows_distance_to_itself_is_zero
+    location = Location.new('Dublin to Belfast = 418')
+    assert_equal(0, location.distance_to('Dublin'))
+  end
 end
