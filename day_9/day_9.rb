@@ -19,17 +19,22 @@ end
 
 class Location
   def initialize(instruction)
+    @routes = {}
+    direction, distance = instruction.split(' = ')
+    @name, _, to = direction.split(' ')
+    add_route(to, distance.strip.to_i)
+    add_route(@name, 0) 
+    @routes[@name] = 0 
   end
   def name
-    'Dublin'
+    @name
   end
   def distance_to(name)
-    fail StandardError unless name != 'London'
-    case name
-    when 'Dublin'
-      0
-    when 'Belfast'
-      418
-    end 
+    fail StandardError unless @routes.keys.include?(name)
+    @routes[name]
+  end
+
+  def add_route(name, distance)
+    @routes[name] = distance
   end
 end

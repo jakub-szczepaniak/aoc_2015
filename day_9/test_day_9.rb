@@ -56,4 +56,9 @@ class TestLocationActions < MiniTest::Test
     location = Location.new('Dublin to Belfast = 418')
     assert_equal(418, location.distance_to('Belfast'))
   end
+  def test_location_can_have_more_than_one_route
+    location = Location.new('Dublin to Belfast = 418')
+    location.add_route('London', 517)
+    assert_equal(517, location.distance_to('London'))
+  end
 end
