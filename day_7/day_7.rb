@@ -1,7 +1,7 @@
 class InvalidSymbolException < Exception
 end
 class Gate
-  def initialize(instruction = nil, grid = nil)
+  def initialize(_instruction = nil, grid = nil)
     @output = nil
     @grid = grid
   end
