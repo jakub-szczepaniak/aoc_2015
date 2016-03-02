@@ -33,8 +33,28 @@ class TestCalculateMinimalRoute < MiniTest::Test
   def test_calculate_minimum_for_pair_of_locations
     locations = LocationGrid.new
     locations.add('London to Dublin = 464')
+    locations.add('London to Belfast = 518')
+    locations.add('Belfast to Dublin = 141')
 
-    assert_equal(464, locations.min_route)
+    assert_equal(605, locations.min_route)
+  end
+
+  def test_my_minimum_input
+    locations = LocationGrid.new
+    input = File.readlines('day_9_data.txt').map(&:strip)
+    input.each do |route|
+      locations.add(route)
+    end
+    assert_equal(207, locations.min_route)
+  end
+
+  def test_my_maximum_input
+    locations = LocationGrid.new
+    input = File.readlines('day_9_data.txt').map(&:strip)
+    input.each do |route|
+      locations.add(route)
+    end
+    assert_equal(804, locations.max_route)
   end
 end
 
