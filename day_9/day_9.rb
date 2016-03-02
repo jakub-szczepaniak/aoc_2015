@@ -11,36 +11,34 @@ class LocationGrid
   end
 
   def distance(from, to)
-    @location_grid[from].distance_to(to)  
+    @location_grid[from].distance_to(to)
   end
-  
+
   def min_route
-    results = []
-    town_list = @location_grid.keys
-    town_list.permutation.each do |set|
-      candidate = 0
-      set.each_cons(2) do |pair|
-        candidate += distance(pair[0], pair[1])
-      end
-      results.push(candidate)
-    end
-    results.min
+    collect_totals.min
   end
 
   def max_route
-    results = []
-    town_list = @location_grid.keys
-    town_list.permutation.each do |set|
-      candidate = 0
-      set.each_cons(2) do |pair|
-        candidate += distance(pair[0], pair[1])
-      end
-      results.push(candidate)
-    end
-    results.max
+    collect_totals.max
   end
 
   private
+
+  def collect_totals
+    possible_routes.collect { |route| calculate_total(route) }
+  end
+
+  def possible_routes
+    @location_grid.keys.permutation
+  end
+
+  def calculate_total(route)
+    collect_distances(route).inject(0, &:+)
+  end
+
+  def collect_distances(route)
+    route.each_cons(2).map { |locations| distance(locations[0], locations[1]) }
+  end
 
   def parse_route(route)
     parsed = OpenStruct.new
