@@ -3,13 +3,14 @@ class LocationGrid
     @location_grid = {}
   end
   
-  def add(locations)
-    cities, dist = locations.split('=')
+  def add(route)
+    cities, dist = route.split(' = ')
     from, _, to = cities.split(' ')
-    @location_grid[from] = to, dist
+    @location_grid[from] ||= Location.new(from)
+    @location_grid[from].add_route(to, dist.to_i)
   end
   def distance(from, to)
-    @location_grid[from][1]
+    @location_grid[from].distance_to(to)
     
   end
   def min_route
@@ -18,17 +19,13 @@ class LocationGrid
 end
 
 class Location
-  def initialize(instruction)
+  attr_reader :name
+  def initialize(location)
     @routes = {}
-    direction, distance = instruction.split(' = ')
-    @name, _, to = direction.split(' ')
-    add_route(to, distance.strip.to_i)
-    add_route(@name, 0) 
-    @routes[@name] = 0 
+    @name = location
+    add_route(@name, 0)
   end
-  def name
-    @name
-  end
+
   def distance_to(name)
     fail StandardError unless @routes.keys.include?(name)
     @routes[name]
