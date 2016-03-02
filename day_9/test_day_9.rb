@@ -14,6 +14,11 @@ class TestAddingLocationToGrid < MiniTest::Test
     assert_equal(464, test_grid.distance('London', 'Dublin'))
   end
 
+  def test_when_route_is_added_it_adds_both_locations_to_grid
+    test_grid = LocationGrid.new
+    test_grid.add('London to Dublin = 464')
+    assert_equal(464, test_grid.distance('Dublin', 'London'))
+  end
   def test_add_more_than_two_locations_to_grid
     test_grid = LocationGrid.new
     test_grid.add('London to Dublin = 464')

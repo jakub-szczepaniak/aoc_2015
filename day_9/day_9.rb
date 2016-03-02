@@ -8,6 +8,8 @@ class LocationGrid
     from, _, to = cities.split(' ')
     @location_grid[from] ||= Location.new(from)
     @location_grid[from].add_route(to, dist.to_i)
+    @location_grid[to] ||= Location.new(to)
+    @location_grid[to].add_route(from, dist.to_i)
   end
   def distance(from, to)
     @location_grid[from].distance_to(to)
