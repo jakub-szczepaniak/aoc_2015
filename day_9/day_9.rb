@@ -3,7 +3,7 @@ class LocationGrid
   def initialize
     @location_grid = {}
   end
-  
+
   def add(route)
     parsed = parse_route(route)
     insert(parsed.city1, parsed.city2, parsed.dist.to_i)
