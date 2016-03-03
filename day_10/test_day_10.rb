@@ -18,4 +18,22 @@ class TestLookAndSaySequence < MiniTest::Test
       SequenceCalculator.new('123abc')
     end
   end
+
+  def test_returns_one_one_for_one_as_initial_sequence
+    test_sequence = SequenceCalculator.new('1')
+
+    assert_equal('11', test_sequence.calculate)
+  end
+
+  def test_returns_2_one_for_one_one
+    test_sequence = SequenceCalculator.new('11')
+
+    assert_equal('21', test_sequence.calculate)
+  end
+
+  def test_returns_1211_for_21
+    test_sequence = SequenceCalculator.new('21')
+
+    assert_equal('1211', test_sequence.calculate)
+  end
 end
