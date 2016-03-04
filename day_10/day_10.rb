@@ -6,10 +6,7 @@ class SequenceCalculator
 
   def calculate(iterations = 1)
     iterations.times do
-      prev = @sequence[0]
-      @sequence = @sequence.slice_before { |e|
-        prev, prev2 = e, prev
-        prev2 != e }.flat_map { |numbers| [numbers.count, numbers.first]}
+      @sequence = slice.flat_map { |numbers| [numbers.count, numbers.first] }
     end
     @sequence.join('')
   end
@@ -19,6 +16,14 @@ class SequenceCalculator
   end
 
   private
+
+  def slice
+    prev = @sequence[0]
+    @sequence.slice_before do |e|
+      prev, prev2 = e, prev
+      prev2 != e
+    end
+  end
 
   def invalid?(sequence)
     sequence == '' || sequence =~ /[\D]/
