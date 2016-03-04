@@ -43,13 +43,13 @@ class TestLookAndSaySequence < MiniTest::Test
     assert_equal('1211', test_sequence.calculate(3))
   end
 
-  def test_my_input
+  def test_my_input_part_1
     test_sequence = SequenceCalculator.new('3113322113')
     test_sequence.calculate(40)
     assert_equal(329_356, test_sequence.length)
   end
 
-  def test_my_input
+  def test_my_input_part_2
     test_sequence = SequenceCalculator.new('3113322113')
     test_sequence.calculate(50)
     assert_equal(4_666_278, test_sequence.length)
