@@ -19,4 +19,18 @@ class TestSantaPasswordGeneration < Minitest::Test
       PasswordGenerator.new('abcdeeeddfff')
     end
   end
+
+  def test_validator_can_be_create
+    refute_equal(nil, PasswordValidator.new)
+  end
+
+  def test_increased_straight_three_letters_returns_false
+    validator = PasswordValidator.new
+    assert_equal(false, validator.increased?('abbceffg'))
+  end
+
+  def test_increased_straight_three_letters_return_tru
+    validator = PasswordValidator.new
+    assert_equal(true, validator.increased?('hijklmmn'))
+  end
 end
