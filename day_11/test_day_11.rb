@@ -29,8 +29,23 @@ class TestSantaPasswordGeneration < Minitest::Test
     assert_equal(false, validator.increased?('abbceffg'))
   end
 
-  def test_increased_straight_three_letters_return_tru
+  def test_increased_straight_three_letters_return_true
     validator = PasswordValidator.new
     assert_equal(true, validator.increased?('hijklmmn'))
+  end
+
+  def test_double_letter_return_false_when_no_double_letter
+    validator = PasswordValidator.new
+    assert_equal(false, validator.double_letter?('abcdefgh'))
+  end
+
+  def test_double_letter_return_false_when_one_set_of_double
+    validator = PasswordValidator.new
+    assert_equal(false, validator.double_letter?('abcdefgg'))
+  end
+
+  def test_double_letter_returns_true_when_2_sets_of_double
+    validator = PasswordValidator.new
+    assert_equal(true, validator.double_letter?('aaccefgh'))
   end
 end

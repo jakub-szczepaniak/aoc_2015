@@ -7,8 +7,12 @@ end
 
 class PasswordValidator
   def increased?(password)
-    password.chars.each_cons(3).any? do |a, b, c|
-      a.ord + 1 == b.ord && a.ord + 2 == c.ord
+    password.chars.each_cons(3).any? do |first, second, third|
+      first.ord + 1 == second.ord && first.ord + 2 == third.ord
     end
+  end
+
+  def double_letter?(password)
+    password.scan(/(.)\1/).count >= 2
   end
 end
