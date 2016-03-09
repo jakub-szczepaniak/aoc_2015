@@ -48,4 +48,19 @@ class TestSantaPasswordGeneration < Minitest::Test
     validator = PasswordValidator.new
     assert_equal(true, validator.double_letter?('aaccefgh'))
   end
+
+  def test_excluding_confusing_letters_returns_false
+    validator = PasswordValidator.new
+    assert_equal(false, validator.no_confusing?('ailbcdo'))
+  end
+
+  def test_excluding_confusing_letters_returns_true
+    validator = PasswordValidator.new
+    assert_equal(true, validator.no_confusing?('abbcegjk'))
+  end
+
+  def test_new_validation_rules
+    validator = PasswordValidator.new
+    assert_equal(true, validator.valid?('abcdffaa'))
+  end
 end
