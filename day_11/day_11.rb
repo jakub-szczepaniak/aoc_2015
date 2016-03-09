@@ -3,6 +3,12 @@ class PasswordGenerator
     fail StandardError unless old_password.length == 8
     @password = old_password
   end
+  def next
+    validator = PasswordValidator.new
+    @password.succ!
+    @password.succ! until validator.valid?(@password)
+    @password
+  end
 end
 
 class PasswordValidator

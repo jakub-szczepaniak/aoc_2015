@@ -20,7 +20,28 @@ class TestSantaPasswordGeneration < Minitest::Test
     end
   end
 
-  def test_validator_can_be_create
+  def test_generating_new_password
+    pass_gen = PasswordGenerator.new('abcdefgh')
+    assert_equal('abcdffaa', pass_gen.next)
+  end
+
+  def test_generating_new_password_2
+    pass_gen = PasswordGenerator.new('ghijklmn')
+    assert_equal('ghjaabcc', pass_gen.next)
+  end
+
+  def test_my_input
+    pass_gen = PasswordGenerator.new('vzbxkghb')
+    assert_equal('vzbxxyzz', pass_gen.next)
+  end
+
+  def test_my_input_2nd_password
+    pass_gen = PasswordGenerator.new('vzbxxyzz')
+  
+    assert_equal('aaaa', pass_gen.next)
+  end
+
+  def test_validator_can_be_created
     refute_equal(nil, PasswordValidator.new)
   end
 
