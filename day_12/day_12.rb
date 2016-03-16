@@ -1,7 +1,14 @@
+require 'json'
 class JSONCalc
-  def initialize(_)
+  def initialize(document)
+    @json = JSON.parse(document)
   end
+
   def sum
-    0
+    if @json == {}
+      0
+    else
+      @json.inject(&:+)
+    end
   end
 end
