@@ -5,7 +5,7 @@ class JSONCalc
   end
 
   def sum
-    if @json == {}
+    if @json == {} || @json == []
       0
     else
       @json.inject(&:+)
