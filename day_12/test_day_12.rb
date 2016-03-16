@@ -14,4 +14,8 @@ class TestingJSONSumCalculation < MiniTest::Test
   def test_sum_is_0_for_empty_array
     assert_equal(0, JSONCalc.new('[]').sum)
   end
+
+  def test_sum_is_one_for_embedded_array
+    assert_equal(1, JSONCalc.new('[1, []]').sum)
+  end
 end

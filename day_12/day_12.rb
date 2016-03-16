@@ -8,7 +8,7 @@ class JSONCalc
     if @json == {} || @json == []
       0
     else
-      @json.inject(&:+)
+      @json.flatten.inject(&:+)
     end
   end
 end
