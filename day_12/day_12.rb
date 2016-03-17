@@ -7,8 +7,10 @@ class JSONCalc
   def sum
     if @json == {} || @json == []
       0
-    else
+    elsif @json.class == Array
       @json.flatten.inject(&:+)
+    elsif @json.class == Hash
+      @json.values.flatten.inject(&:+)
     end
   end
 end

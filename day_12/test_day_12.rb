@@ -18,4 +18,8 @@ class TestingJSONSumCalculation < MiniTest::Test
   def test_sum_is_one_for_embedded_array
     assert_equal(1, JSONCalc.new('[1, []]').sum)
   end
+
+  def test_sum_is_one_for_single_hash
+    assert_equal(1, JSONCalc.new('{"a": 1}').sum)
+  end
 end
