@@ -13,9 +13,15 @@ happiness_data_2 = {
         "A": {"B": 10, "C": 20},
         "B": {"A": 30, "C": 40},
         "C": {"A": 50, "B": 60}
-}
+    }
 
-@pytest.fixture(params=[(happiness_data_1, 330), (happiness_data_2, 210)])
+happiness_data_3 = {
+        "X": {"Y": 5, "Z": -10},
+        "Y": {"X": 15, "Z": 20},
+        "Z": {"X": -5, "Y": 25}
+    }
+
+@pytest.fixture(params=[(happiness_data_1, 330), (happiness_data_2, 210), (happiness_data_3, 50)])
 def happiness_data(request):
     return request.param
 
